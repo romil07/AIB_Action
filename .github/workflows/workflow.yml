@@ -1,0 +1,73 @@
+# This is a basic workflow to help you get started with Actions
+name: CI
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+      
+  job1:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    name: A job to use action to run aib action
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    
+     # To use this repository's private action,
+      # you must check out the repository
+    - name: Checkout
+      uses: actions/checkout@v2
+    - shell: bash
+      run: mkdir -p homework
+    - shell: bash
+      run: echo 'hello world' >homework/helloworld1.txt
+    - name: Upload hello world file
+      uses: actions/upload-artifact@v1
+      with:
+        name: template
+        path: homework
+    #- name: Download hello world file
+     # uses: actions/download-artifact@v1
+      #with:
+       # name: hello-world
+        #path: homework
+    
+    - name: Login via Az module
+      uses: azure/login@v1.1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        
+    # uses action is for AIB to create image
+    - name: aib action
+      id: aib
+      uses: ./
+      with:
+        location: 'eastus'
+        #resourceGroupName: 'rg_aib_action_1597077618408'
+        #resourceGroupName: 'aibResourceGroupLin'
+        resourceGroupName: 'aibResourceGroupMG'
+        #resourceGroupName: 'rg_aib_action_1597591645408'
+        #imagebuilderTemplateName: '/home/runner/work/AIB_Action_1/AIB_Action_1/homework/template.json'
+        sourceOSType: 'linux'
+        sourceImageType: 'marketplace'
+        #sourceImage: MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest
+        sourceImage: Canonical:UbuntuServer:18.04-DAILY-LTS:latest
+        #sourceImage: '/subscriptions/f9b6b78c-2720-4293-9fc7-2c38fcebb2c6/resourceGroups/aibResourceGroupLin/providers/Microsoft.Compute/galleries/sharedImageGalleryLin/images/imgdefnlin/versions/0.24374.10929'
+        customizerSource: '/home/runner/work/AIB_Action_1/AIB_Action_1/homework'
+        customizerDestination: 'linux'
+        distributorType: 'ManagedImage'
+        #buildTimeoutInMinutes: '1'
+        #distResourceId: '/subscriptions/c00d16c7-6c1f-4c03-9be1-6934a4c49682/resourceGroups/aibResourceGroup/providers/Microsoft.Compute/galleries/myaibsig01/images/winSvrimages'
+        #distResourceId: '/subscriptions/f9b6b78c-2720-4293-9fc7-2c38fcebb2c6/resourceGroups/aibResourceGroupLin/providers/Microsoft.Compute/galleries/sharedImageGalleryLin/images/imgdefnlin'
+        #distResourceId: '/subscriptions/c00d16c7-6c1f-4c03-9be1-6934a4c49682/resourceGroups/aibResourceGroupMG/providers/Microsoft.Compute/images/aibManagedImage'
+        distResourceId: '/subscriptions/f9b6b78c-2720-4293-9fc7-2c38fcebb2c6/resourceGroups/aibResourceGroupMG/providers/Microsoft.Compute/images/aibManagedImage'
+        distLocation: 'eastus' 
+    - name: print aib output
+      run: echo output from aib ${{ steps.aib.outputs.imagebuilderRunStatus }} ${{ steps.aib.outputs.runOutputName }} ${{ steps.aib.outputs.customImageURI }}

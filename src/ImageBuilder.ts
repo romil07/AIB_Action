@@ -110,7 +110,7 @@ export default class ImageBuilder {
                 }
             }
 
-            this.sleepFor(2);
+            this.sleepFor(30);
 
             //GENERAL INPUTS
             outStream = await this.executeAzCliCommand("account show");
@@ -154,7 +154,7 @@ export default class ImageBuilder {
             await this.executeAzCliCommand(`role definition create --role-definition ./src/template.json`);
             console.log("role definition " + imageRoleDefName + " got created");
             roleDefinitionExists = true;
-            await this.sleepFor(20);
+            await this.sleepFor(2);
 
             //create managed identity
             var imgBuilderId = "";
@@ -164,7 +164,7 @@ export default class ImageBuilder {
             principalId = JSON.parse(`${outStream}`).principalId.toString();
             console.log("managed identity" + idenityName + " got created");
             managedIdentityExists = true;
-            await this.sleepFor(20);
+            await this.sleepFor(2);
             //create role assignment for managed identity
             await this.executeAzCliCommand(`role assignment create --assignee-object-id ${principalId} --role ${imageRoleDefName} --scope /subscriptions/${subscriptionId}/resourceGroups/${this._taskParameters.resourceGroupName}`);
             console.log("role assignment for managed identity" + idenityName + " got created");
@@ -173,7 +173,7 @@ export default class ImageBuilder {
             //CUSTOMIZER INPUTS
             storageAccount = Util.format('%s%s', constants.storageAccountName, getCurrentTime());
             await this.executeAzCliCommand(`storage account create --name "${storageAccount}" --resource-group "${this._taskParameters.resourceGroupName}" --location "${this._taskParameters.location}" --sku Standard_RAGRS`);
-            await this.sleepFor(20);
+            await this.sleepFor(2);
             outStream = await this.executeAzCliCommand(`storage account keys list -g "${this._taskParameters.resourceGroupName}" -n "${storageAccount}"`);
             accountkeys = JSON.parse(`${outStream}`)[0].value;
             console.log("storage account " + storageAccount + " got created");
@@ -188,7 +188,7 @@ export default class ImageBuilder {
             else
                 blobName = blobName + '.tar.gz';
             var blobUrl = await this.uploadPackage(containerName, blobName);
-            await this.sleepFor(20);
+            await this.sleepFor(2);
             await this.executeAzCliCommand(`role assignment create --assignee-object-id ${principalId} --role "Storage Blob Data Reader" --scope /subscriptions/${subscriptionId}/resourceGroups/${this._taskParameters.resourceGroupName}/providers/Microsoft.Storage/storageAccounts/${storageAccount}/blobServices/default/containers/${containerName}`)
             console.log("role assignment for storage account " + storageAccount + " got created");
             roleAssignmentForStorageAccountExists = true;

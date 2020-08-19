@@ -110,7 +110,7 @@ export default class ImageBuilder {
                 }
             }
 
-            this.sleepFor(30);
+            this.sleepFor(3);
 
             //GENERAL INPUTS
             outStream = await this.executeAzCliCommand("account show");
@@ -405,9 +405,7 @@ export default class ImageBuilder {
 
     private sleepFor(sleepDurationInSeconds: any): Promise<any> {
         return new Promise((resolve, reeject) => {
-            console.log("sleeping for " + sleepDurationInSeconds);
             setTimeout(resolve, sleepDurationInSeconds * 1000);
-            console.log("sleeping for " + sleepDurationInSeconds);
         });
     }
 }

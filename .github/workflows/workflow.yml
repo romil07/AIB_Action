@@ -49,7 +49,7 @@ jobs:
       id: aib
       uses: ./
       with:
-        location: 'eastus'
+        location: 'westus'
         #resourceGroupName: 'rg_aib_action_1597077618408'
         resourceGroupName: 'aibResourceGroupLin'
         #resourceGroupName: 'aibResourceGroupMG'
@@ -61,13 +61,13 @@ jobs:
         #sourceImage: Canonical:UbuntuServer:18.04-DAILY-LTS:latest
         sourceImage: '/subscriptions/f9b6b78c-2720-4293-9fc7-2c38fcebb2c6/resourceGroups/aibResourceGroupLin/providers/Microsoft.Compute/galleries/sharedImageGalleryLin/images/imgdefnlin/versions/0.24374.10929'
         customizerSource: '/home/runner/work/AIB_Action_1/AIB_Action_1/homework'
-        customizerDestination: 'linux'
+        #customizerDestination: 'linux'
         distributorType: 'SharedGalleryImage'
         #buildTimeoutInMinutes: '1'
         #distResourceId: '/subscriptions/c00d16c7-6c1f-4c03-9be1-6934a4c49682/resourceGroups/aibResourceGroup/providers/Microsoft.Compute/galleries/myaibsig01/images/winSvrimages'
         distResourceId: '/subscriptions/f9b6b78c-2720-4293-9fc7-2c38fcebb2c6/resourceGroups/aibResourceGroupLin/providers/Microsoft.Compute/galleries/sharedImageGalleryLin/images/imgdefnlin'
         #distResourceId: '/subscriptions/c00d16c7-6c1f-4c03-9be1-6934a4c49682/resourceGroups/aibResourceGroupMG/providers/Microsoft.Compute/images/aibManagedImage'
         #distResourceId: '/subscriptions/f9b6b78c-2720-4293-9fc7-2c38fcebb2c6/resourceGroups/aibResourceGroupMG/providers/Microsoft.Compute/images/aibManagedImage'
-        distLocation: 'eastus' 
+        distLocation: 'westus' 
     - name: print aib output
       run: echo output from aib ${{ steps.aib.outputs.imagebuilderRunStatus }} ${{ steps.aib.outputs.runOutputName }} ${{ steps.aib.outputs.customImageURI }}

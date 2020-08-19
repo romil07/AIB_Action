@@ -25,19 +25,24 @@ jobs:
       with:
         creds: ${{secrets.AZURE_CREDENTIALS}}
     
-    - name: aib action
-      id: aib
-      uses: ./
-      with:
-        location: 'eastus2'
-        resourceGroupName: 'raiaib-rg'
-        sourceOSType: 'linux'
-        sourceImageType: 'marketplace'
-        sourceImage: Canonical:UbuntuServer:18.04-LTS:latest
-        customizerSource: '/home/runner/work/imageBuilder/installScripts'
-        distributorType: 'sharedgalleryimage'
-        distResourceId: '/subscriptions/afc11291-9826-46be-b852-70349146ddf8/resourceGroups/raiyan-rg2/providers/Microsoft.Compute/galleries/raiSIG_AIB_Test/images/customUbuntuOs'
-        distLocation: 'eastus2'
+    - shell: bash
+      run: |
+          az account show
+          
+          
+#     - name: aib action
+#       id: aib
+#       uses: ./
+#       with:
+#         location: 'eastus2'
+#         resourceGroupName: 'raiaib-rg'
+#         sourceOSType: 'linux'
+#         sourceImageType: 'marketplace'
+#         sourceImage: Canonical:UbuntuServer:18.04-LTS:latest
+#         customizerSource: '/home/runner/work/imageBuilder/installScripts'
+#         distributorType: 'sharedgalleryimage'
+#         distResourceId: '/subscriptions/afc11291-9826-46be-b852-70349146ddf8/resourceGroups/raiyan-rg2/providers/Microsoft.Compute/galleries/raiSIG_AIB_Test/images/customUbuntuOs'
+#         distLocation: 'eastus2'
 
-    - name: print aib output
-      run: echo output from aib ${{ steps.aib.outputs.imagebuilderRunStatus }} ${{ steps.aib.outputs.runOutputName }} ${{ steps.aib.outputs.customImageURI }}
+#     - name: print aib output
+#       run: echo output from aib ${{ steps.aib.outputs.imagebuilderRunStatus }} ${{ steps.aib.outputs.runOutputName }} ${{ steps.aib.outputs.customImageURI }}

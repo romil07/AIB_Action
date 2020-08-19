@@ -60,39 +60,57 @@ export default class ImageBuilder {
             var outStream = '';
             await this.executeAzCliCommand("--version");
             //Register all features for Azure Image Builder Service
-            console.log("Register Microsoft.VirtualMachineImages");
-            await this.executeAzCliCommand("feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview");
             outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
-            while (!Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
+            if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
+                console.log("Register Microsoft.VirtualMachineImages");
+                await this.executeAzCliCommand("feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview");
+                this.sleepFor(1);
                 outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+                while (!Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
+                    outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+                }
             }
-
-
-
-            // var outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
-            // if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
-            //     console.log("Register Microsoft.VirtualMachineImages");
-            //     await this.executeAzCliCommand("feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview");
-            // }
             outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
             if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
                 await this.executeAzCliCommand("provider register -n Microsoft.VirtualMachineImages");
+                this.sleepFor(1);
+                outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+                while (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
+                    outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+                }
             }
             outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Storage`);
             if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
                 console.log("Register Microsoft.Storage");
                 await this.executeAzCliCommand("provider register -n Microsoft.Storage");
+                this.sleepFor(1);
+                outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Storage`);
+                while (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
+                    outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Storage`);
+                }
             }
             outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Compute`);
             if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
                 console.log("Register Microsoft.Compute");
                 await this.executeAzCliCommand("provider register -n Microsoft.Compute");
+                this.sleepFor(1);
+                outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Compute`);
+                while (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
+                    outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Compute`);
+                }
             }
             outStream = await this.executeAzCliCommand(`provider show -n Microsoft.KeyVault`);
             if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
                 console.log("Register Microsoft.KeyVault");
                 await this.executeAzCliCommand("provider register -n Microsoft.KeyVault");
+                this.sleepFor(1);
+                outStream = await this.executeAzCliCommand(`provider show -n Microsoft.KeyVault`);
+                while (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
+                    outStream = await this.executeAzCliCommand(`provider show -n Microsoft.KeyVault`);
+                }
             }
+
+            this.sleepFor(2);
 
             //GENERAL INPUTS
             outStream = await this.executeAzCliCommand("account show");
@@ -176,7 +194,7 @@ export default class ImageBuilder {
             roleAssignmentForStorageAccountExists = true;
 
             //create template
-            /*console.log("template creation");
+            console.log("template creation");
             var templateJson = await this._buildTemplate.getTemplate(blobUrl, imgBuilderId, subscriptionId);
             templateName = this.getTemplateName();
             var runOutputName = this._taskParameters.runOutputName;
@@ -213,7 +231,7 @@ export default class ImageBuilder {
                 console.log("$(templateName) = ", templateName);
                 console.log("$(templateId) = ", templateID);
             }
-            console.log("==============================================================================")*/
+            console.log("==============================================================================")
 
         }
         catch (error) {
@@ -376,7 +394,7 @@ export default class ImageBuilder {
         };
         try {
             await exec.exec(`"${azPath}" ${command}`, [], execOptions);
-            console.log(outStream);
+            //console.log(outStream);
             return outStream;
         }
         catch (error) {
@@ -387,7 +405,9 @@ export default class ImageBuilder {
 
     private sleepFor(sleepDurationInSeconds: any): Promise<any> {
         return new Promise((resolve, reeject) => {
+            console.log("sleeping for " + sleepDurationInSeconds);
             setTimeout(resolve, sleepDurationInSeconds * 1000);
+            console.log("sleeping for " + sleepDurationInSeconds);
         });
     }
 }

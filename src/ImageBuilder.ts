@@ -57,29 +57,39 @@ export default class ImageBuilder {
         var accountkeys: string = "";
         try {
             azPath = await io.which("az", true);
+            var outStream = '';
             await this.executeAzCliCommand("--version");
             //Register all features for Azure Image Builder Service
-            var outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
-            if (Utils.IsEqual(JSON.parse(`${outStream}`) && JSON.parse(`${outStream}`).properties.state, "Registered")) {
-                console.log("Register Microsoft.VirtualMachineImages");
-                this.executeAzCliCommand("feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview");
-            }
+            console.log("Register Microsoft.VirtualMachineImages");
+            await this.executeAzCliCommand("feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview");
             outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
-            if (Utils.IsEqual(JSON.parse(`${outStream}`) && JSON.parse(`${outStream}`).properties.state, "Registered")) {
+            while (!Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
+                outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+            }
+
+
+
+            // var outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+            // if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
+            //     console.log("Register Microsoft.VirtualMachineImages");
+            //     await this.executeAzCliCommand("feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview");
+            // }
+            outStream = await this.executeAzCliCommand(`feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview`);
+            if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).properties.state, "Registered")) {
                 await this.executeAzCliCommand("provider register -n Microsoft.VirtualMachineImages");
             }
             outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Storage`);
-            if (Utils.IsEqual(JSON.parse(`${outStream}`) && JSON.parse(`${outStream}`).registrationState, "Registered")) {
+            if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
                 console.log("Register Microsoft.Storage");
                 await this.executeAzCliCommand("provider register -n Microsoft.Storage");
             }
             outStream = await this.executeAzCliCommand(`provider show -n Microsoft.Compute`);
-            if (Utils.IsEqual(JSON.parse(`${outStream}`) && JSON.parse(`${outStream}`).registrationState, "Registered")) {
+            if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
                 console.log("Register Microsoft.Compute");
                 await this.executeAzCliCommand("provider register -n Microsoft.Compute");
             }
             outStream = await this.executeAzCliCommand(`provider show -n Microsoft.KeyVault`);
-            if (Utils.IsEqual(JSON.parse(`${outStream}`) && JSON.parse(`${outStream}`).registrationState, "Registered")) {
+            if (JSON.parse(`${outStream}`) && !Utils.IsEqual(JSON.parse(`${outStream}`).registrationState, "Registered")) {
                 console.log("Register Microsoft.KeyVault");
                 await this.executeAzCliCommand("provider register -n Microsoft.KeyVault");
             }
@@ -166,7 +176,7 @@ export default class ImageBuilder {
             roleAssignmentForStorageAccountExists = true;
 
             //create template
-            console.log("template creation");
+            /*console.log("template creation");
             var templateJson = await this._buildTemplate.getTemplate(blobUrl, imgBuilderId, subscriptionId);
             templateName = this.getTemplateName();
             var runOutputName = this._taskParameters.runOutputName;
@@ -203,7 +213,7 @@ export default class ImageBuilder {
                 console.log("$(templateName) = ", templateName);
                 console.log("$(templateId) = ", templateID);
             }
-            console.log("==============================================================================")
+            console.log("==============================================================================")*/
 
         }
         catch (error) {
@@ -366,9 +376,11 @@ export default class ImageBuilder {
         };
         try {
             await exec.exec(`"${azPath}" ${command}`, [], execOptions);
+            console.log(outStream);
             return outStream;
         }
         catch (error) {
+            console.log(JSON.stringify(error));
             throw error;
         }
     }
